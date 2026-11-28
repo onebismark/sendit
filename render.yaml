@@ -1,23 +1,29 @@
-# Exported from Render on 2026-11-28T13:41:11Z
-version: "1"
+databases:
+  - name: sendit-db
+    plan: free
+
 services:
-- type: web
-  name: sendit
-  runtime: node
-  repo: https://github.com/onebismark/sendit
-  plan: free
-  envVars:
-  - key: DATABASE_URL
-    sync: false
-  - key: ROOM_TTL_MIN
-    sync: false
-  - key: NODE_VERSION
-    sync: false
-  region: oregon
-  buildCommand: npm install && npm run build
-  startCommand: npm start
-  healthCheckPath: /healthz
-  domains:
-  - sendit.msbundle.store
-  autoDeployTrigger: commit
-  renderSubdomainPolicy: disabled
+  - type: web
+    name: sendit
+    runtime: node
+    plan: free          # change to "starter" so the service never sleeps
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: ROOM_TTL_MIN
+        value: "60"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: sendit-db
+          property: connectionString
+      - key: SITE_URL
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: CONTACT_TO
+        sync: false
+      - key: MAIL_FROM
+        sync: false
